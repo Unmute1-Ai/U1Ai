@@ -1,10 +1,12 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
+import math
 from typing import Iterable
 
 class ThreatLabel(str, Enum):
     NORMAL = "NORMAL"
+    REVIEW = "REVIEW"
     IDENTITY_DRIFT = "IDENTITY_DRIFT"
     SPOOFED_SENSOR = "SPOOFED_SENSOR"
     ROBOT_ANOMALY = "ROBOT_ANOMALY"
@@ -46,10 +48,15 @@ def evaluate_security_state(frames: Iterable[SensorFrame], robot: RobotState | N
 
     if not frames:
         return SecurityState(ThreatLabel.NETWORK_ANOMALY, 0.80, ("no_sensor_frames",), "quarantine_input_path")
-    if any(not f.provenance_verified for f in frames):
+    if any(type(f.confidence) not in (int, float) or not math.isfinite(f.confidence) or not 0 <= f.confidence <= 1
+           or type(f.timestamp_ms) is not int or f.timestamp_ms < 0
+           or type(f.features) not in (tuple, list)
+           or any(type(v) not in (int, float) or not math.isfinite(v) for v in f.features) for f in frames):
+        return SecurityState(ThreatLabel.SPOOFED_SENSOR, 1.0, ("invalid_sensor_telemetry",), "quarantine_sensor")
+    if any(f.provenance_verified is not True for f in frames):
         reasons.append("unverified_sensor_provenance")
         risk = max(risk, 0.90)
-    if any(not f.integrity_ok for f in frames):
+    if any(f.integrity_ok is not True for f in frames):
         reasons.append("sensor_integrity_failure")
         risk = max(risk, 0.95)
     if any(f.contains_raw_biometric for f in frames):
@@ -67,14 +74,22 @@ def evaluate_security_state(frames: Iterable[SensorFrame], robot: RobotState | N
         if robot.expected_firmware_digest != robot.runtime_firmware_digest:
             reasons.append("robot_firmware_digest_mismatch")
             risk = max(risk, 0.98)
+        if any(type(v) not in (int, float) or not math.isfinite(v) for v in
+               (robot.commanded_speed_mps, robot.observed_speed_mps)):
+            return SecurityState(ThreatLabel.ROBOT_ANOMALY, 1.0, ("invalid_robot_telemetry",), "request_robot_safe_state")
         if abs(robot.commanded_speed_mps - robot.observed_speed_mps) > 0.5:
             reasons.append("robot_motion_deviation")
             risk = max(risk, 0.92)
+        elif abs(robot.commanded_speed_mps - robot.observed_speed_mps) > 0.3:
+            reasons.append("robot_motion_review")
+            risk = max(risk, 0.60)
 
     if "robot_firmware_digest_mismatch" in reasons or "robot_motion_deviation" in reasons:
         return SecurityState(ThreatLabel.ROBOT_ANOMALY, risk, tuple(reasons), "request_robot_safe_state")
     if "sensor_integrity_failure" in reasons or "unverified_sensor_provenance" in reasons:
         return SecurityState(ThreatLabel.SPOOFED_SENSOR, risk, tuple(reasons), "quarantine_sensor")
+    if reasons == ["robot_motion_review"]:
+        return SecurityState(ThreatLabel.REVIEW, risk, tuple(reasons), "require_human_review")
     if reasons:
         return SecurityState(ThreatLabel.NETWORK_ANOMALY, risk, tuple(reasons), "require_human_review")
     return SecurityState(ThreatLabel.NORMAL, 0.02, ("verified_local_state",), None)

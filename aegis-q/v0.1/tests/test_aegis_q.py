@@ -28,29 +28,9 @@ def test_cross_modal_disagreement_requires_review():
     b = SensorFrame("watch","imu",1,True,True,.30)
     assert "cross_modal_disagreement" in evaluate_security_state([a,b]).reasons
 
-def test_model_swap_does_not_change_authority():
-    p = Principal("u", frozenset({"read_state"}))
-    a = ActionProposal("read_state","d1","small-model",.5)
-    b = ActionProposal("read_state","d1","frontier-model",.99)
-    assert authority_vector(p) == authority_vector(p)
-    assert authorize_reference(p,a) == authorize_reference(p,b)
-
-def test_model_cannot_invent_robot_authority():
-    p = Principal("u", frozenset({"read_state"}))
-    a = ActionProposal("physical_actuation","d","frontier-model",1.0)
-    assert authorize_reference(p,a).decision == "DENY"
-
-def test_physical_action_requires_exact_credential_and_simulation():
-    p = Principal("u", frozenset({"physical_actuation"}))
-    a = ActionProposal("physical_actuation","abc","m",.99)
-    assert authorize_reference(p,a).reason == "exact_scoped_single_use_credential_required"
-    assert authorize_reference(p,a,exact_single_use_credential="abc").reason == "simulation_required_before_live_physical_effect"
-    assert authorize_reference(p,a,exact_single_use_credential="abc",verified_simulation=True).decision == "ALLOW"
-
-def test_official_alert_requires_authenticated_authority():
-    p = Principal("u", frozenset({"official_emergency_alert"}))
-    a = ActionProposal("official_emergency_alert","abc","m",.99)
-    assert authorize_reference(p,a,exact_single_use_credential="abc").reason == "authenticated_official_authority_required"
+def test_legacy_authorization_is_disabled():
+    assert authorize_reference(None, None, exact_single_use_credential="abc",
+                               verified_simulation=True).decision == "DENY"
 
 def test_pqc_envelope_commitment_is_deterministic():
     e = DeviceIdentityEnvelope("u","watch-1","wearable","f"*64,"nonce-1234")
