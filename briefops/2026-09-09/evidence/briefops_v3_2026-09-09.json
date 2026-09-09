@@ -1,0 +1,15 @@
+{
+  "suite": "U1 BriefOps v3.1 daily delta",
+  "date": "2026-09-09",
+  "generated_unix": 1788956217,
+  "pytest_returncode": 0,
+  "pytest_output": ".............                                                            [100%]\n13 passed in 0.05s",
+  "receipt_chain": {
+    "valid": true,
+    "reason": "receipt_chain_valid",
+    "count": 5
+  },
+  "invariant": "Capability may change. Authority does not.",
+  "external_effects_executed": 0,
+  "physical_live_actions_executed": 0
+}
