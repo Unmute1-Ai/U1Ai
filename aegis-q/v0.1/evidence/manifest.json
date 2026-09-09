@@ -1,19 +1,25 @@
 {
   "artifact": "U1 AEGIS-Q",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "test_exit_code": 0,
-  "test_summary": "12 passed in 0.07s",
+  "test_summary": "58 passed in 2.84s",
+  "python": "3.12.14",
   "external_effects_enabled": false,
   "nvidia_runtime_claimed_live": false,
-  "authority_lift_target": 0,
-  "baseline_reference": {
-    "name": "U1 Sentinel v3",
-    "invariants": [
-      "model capability may change without authority change",
-      "component/model provenance",
-      "explicit cross-domain consent",
-      "single-use scoped credentials",
-      "simulation before physical live action"
-    ]
-  }
+  "pq_signature_verification_implemented": false,
+  "authorization_scope": "trusted-host durable admission only",
+  "source_sha256": {
+    "src/aegis_q/__init__.py": "7eeed60ce0c2b5c26aa8869e2c8b1e838dd7ea0f7c62cb0692ea2588c2e0e267",
+    "src/aegis_q/core.py": "1cbf2ed43053a7e9acbcc69329c7343621bb03856ba9fb2cdd26a9b2e57794d6",
+    "src/aegis_q/nvidia_adapter.py": "376d6b4a7badc5e69f4e5e766ce201e7ab5a38be20d56b5815863b1f61318f22",
+    "src/aegis_q/pqc_identity.py": "cb999187d0c1df0bb4012bc22da27ea246ba4249fbcc741c33ee13a7b3c9f77e",
+    "src/aegis_q/sentinel_bridge.py": "1fdc6ff5a0acc315ec70762dbf8da6cef77871ab291bb712b5d81b4ee3ceaedc"
+  },
+  "test_sha256": {
+    "tests/test_aegis_q.py": "7b20d2de22465e3f4756f4ec7651769b53d9bc6e777fc0e897093e5193b3e00e",
+    "tests/test_authorization.py": "5b5962ce2a524ec19c7e1ca52259ce2b287449b5b56832c0f9f838486c17fc5c",
+    "tests/test_validation.py": "6f2ccc4da3a82b2d9a7da0e67daa56866ab98b7ee94a7210e1bdff0534252075"
+  },
+  "browser_sha256": "2e4378f578a5e00639e9746ce0401c11e87aad90c7c90c7b37105ebec24cc86a",
+  "production_blockers_document": "../../../PRODUCTION_READINESS.md"
 }

@@ -75,9 +75,10 @@ function evaluateState(){
  const prov=document.getElementById('prov').value;
  const integrity=document.getElementById('integrity').value;
  const firmware=document.getElementById('firmware').value;
- const motion=Math.abs(parseFloat(document.getElementById('motion').value)||0);
+ const rawMotion=document.getElementById('motion').value.trim();
+ const motion=rawMotion==='' ? NaN : Math.abs(Number(rawMotion));
  let label='NORMAL', cls='normal', reason='Verified local state. No action proposal.';
- if(firmware==='bad'||motion>0.5){label='ROBOT_ANOMALY';cls='deny';reason='Proposed response: request robot safe state. Sentinel authorization is still required.';}
+ if(!Number.isFinite(motion)||firmware==='bad'||motion>0.5){label='ROBOT_ANOMALY';cls='deny';reason='Proposed response: request robot safe state. Sentinel authorization is still required.';}
  else if(prov==='bad'||integrity==='bad'){label='SPOOFED_SENSOR';cls='deny';reason='Proposed response: quarantine sensor input. No device authority is granted.';}
  else if(motion>0.3){label='REVIEW';cls='warn';reason='Motion discrepancy detected. Human review recommended.';}
  document.getElementById('result').innerHTML='<div class="status '+cls+'">'+label+'</div><div>'+reason+'</div>';

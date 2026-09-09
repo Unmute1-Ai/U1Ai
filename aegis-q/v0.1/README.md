@@ -32,3 +32,18 @@ python -m pip install -e .
 pytest -q
 python scripts/demo.py
 ```
+
+## v0.1.1 security update
+
+The folder stays `v0.1` for existing links. Package version is now 0.1.1.
+Legacy `authorize_reference` always denies. The replacement `SentinelStore` binds
+random credentials to immutable stored proposals and trusted principals, then
+atomically records single-use admission. It provides no effect execution.
+
+Install tests with `python -m pip install -e '.[test]'`; Node.js is required for
+browser/Python parity tests. Run `python scripts/authorization_demo.py` for a
+no-effects admission/replay demonstration. Review [AUTHORIZATION.md](docs/AUTHORIZATION.md)
+before integration, especially the host identity, verifier and isolation requirements.
+
+**Production effects remain blocked.** Exact PQ metadata validation is not actual
+PQ cryptography; NVIDIA runtime descriptors are not runtime attestations.

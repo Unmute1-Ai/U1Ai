@@ -1,3 +1,6 @@
+> v0.1.1: See [the implemented authorization boundary](AUTHORIZATION.md).
+> The architecture below includes integration targets, not evidence of live effect or PQ readiness.
+
 # AEGIS-Q Architecture v0.1
 
 ## Perception plane
