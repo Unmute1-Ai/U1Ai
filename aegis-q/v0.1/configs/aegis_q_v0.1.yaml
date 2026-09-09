@@ -1,0 +1,36 @@
+model:
+  name: U1-AEGIS-Q
+  version: 0.1
+  role: embodied_security_foundation_model
+  outputs:
+    - NORMAL
+    - IDENTITY_DRIFT
+    - SPOOFED_SENSOR
+    - ROBOT_ANOMALY
+    - UNTRUSTED_TOOL
+    - NETWORK_ANOMALY
+    - USER_DISTRESS
+    - ACCESSIBILITY_INTENT
+
+edge:
+  target: Jetson Thor
+  inference: TensorRT
+  crypto: cuPQC
+  cloud_required: false
+
+post_quantum:
+  kem: ML-KEM-768
+  signature: ML-DSA-65
+  receipt_hash: SHA3-256
+
+authority:
+  system: U1 Sentinel v3
+  model_may_grant_authority: false
+  fail_closed_unverified_provenance: true
+  consequential_effects_require_single_use_credentials: true
+  physical_effects_require_verified_simulation: true
+
+privacy:
+  raw_biometric_egress: deny
+  raw_audio_egress: deny
+  raw_video_egress: deny

@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>U1 AEGIS-Q | Quantum-Resilient Embodied Security</title>
+<meta name="description" content="U1 AEGIS-Q: an NVIDIA-edge-first embodied security model for wearables, robots, and local multimodal sensing." />
+<style>
+:root{--bg:#07090d;--panel:#10141c;--text:#eef2f6;--muted:#9aa6b2;--line:#222b38;--accent:#76b900;--cyan:#55d7ff;--warn:#ffc857}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:radial-gradient(circle at 10% 0%,#11200a 0,transparent 28%),var(--bg);color:var(--text)}
+.wrap{max-width:1180px;margin:auto;padding:28px}.nav{display:flex;justify-content:space-between;align-items:center;gap:16px}.brand{font-weight:900;letter-spacing:.08em}.tag{font-size:12px;padding:7px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted)}
+.hero{padding:86px 0 44px}.eyebrow{color:var(--accent);font-weight:800;letter-spacing:.12em;font-size:12px}.hero h1{font-size:clamp(44px,8vw,92px);line-height:.96;margin:14px 0;letter-spacing:-.055em}.hero p{max-width:780px;color:var(--muted);font-size:20px;line-height:1.55}.rule{font-weight:800;color:white}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:26px 0}.card{background:linear-gradient(180deg,#121722,#0d1118);border:1px solid var(--line);border-radius:20px;padding:22px}.card h3{margin:0 0 10px}.card p{color:var(--muted);line-height:1.55}.metric{font-size:32px;font-weight:900;color:var(--accent)}
+.demo{margin:40px 0;padding:26px;background:var(--panel);border:1px solid var(--line);border-radius:24px}.demo h2{margin-top:0}.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.control{background:#0a0e14;padding:14px;border:1px solid var(--line);border-radius:14px}.control label{display:block;font-size:12px;color:var(--muted);margin-bottom:8px}.control select,.control input{width:100%;background:#111721;border:1px solid #2a3443;color:white;padding:10px;border-radius:10px}.btn{margin-top:16px;background:var(--accent);color:#071000;font-weight:900;border:none;padding:13px 18px;border-radius:12px;cursor:pointer}.result{margin-top:16px;padding:18px;border-radius:14px;background:#080c12;border:1px solid var(--line)}.status{font-weight:900;font-size:22px}.status.normal{color:var(--accent)}.status.warn{color:var(--warn)}.status.deny{color:#ff6b6b}
+.flow{white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.75;color:#d4dbe4;background:#080b10;border-radius:18px;padding:22px;border:1px solid var(--line);overflow:auto}.foot{padding:40px 0 10px;color:var(--muted);font-size:13px}.pill{display:inline-block;margin:4px 5px 0 0;padding:6px 9px;border-radius:999px;background:#0d1610;border:1px solid #1d3920;color:#bce68f}
+@media(max-width:850px){.grid,.controls{grid-template-columns:1fr}.hero{padding-top:54px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="nav"><div class="brand">UNMUTE1AI / AEGIS-Q</div><div class="tag">v0.1 • REFERENCE BUILD</div></div>
+  <section class="hero">
+    <div class="eyebrow">NVIDIA-EDGE-FIRST • POST-QUANTUM • EMBODIED SECURITY</div>
+    <h1>Protect the human.<br>Trust the signal.<br>Gate the action.</h1>
+    <p>U1 AEGIS-Q is an embodied security model for wearables, robots, and local multimodal sensing. It detects security state and proposes safe responses while <span class="rule">U1 Sentinel remains the authority layer.</span></p>
+    <div><span class="pill">Jetson Thor target</span><span class="pill">TensorRT path</span><span class="pill">ML-KEM-768</span><span class="pill">ML-DSA-65</span><span class="pill">SHA3-256</span></div>
+  </section>
+
+  <section class="grid">
+    <div class="card"><div class="metric">0</div><h3>Authority Lift</h3><p>Changing or upgrading the model does not add principal capabilities.</p></div>
+    <div class="card"><div class="metric">LOCAL</div><h3>Perception First</h3><p>Wearable, robot, IMU, vision, audio-derived, network, and process signals stay local by default.</p></div>
+    <div class="card"><div class="metric">PQC</div><h3>Device Identity</h3><p>Reference identity envelope targets ML-KEM, ML-DSA, and SHA3 commitments.</p></div>
+  </section>
+
+  <section class="demo">
+    <h2>AEGIS-Q security-state demo</h2>
+    <p style="color:var(--muted)">This browser demo mirrors v0.1 reference logic. It never controls real hardware.</p>
+    <div class="controls">
+      <div class="control"><label>Sensor provenance</label><select id="prov"><option value="ok">Verified</option><option value="bad">Unverified</option></select></div>
+      <div class="control"><label>Sensor integrity</label><select id="integrity"><option value="ok">Valid</option><option value="bad">Failed</option></select></div>
+      <div class="control"><label>Robot firmware</label><select id="firmware"><option value="ok">Digest match</option><option value="bad">Digest mismatch</option></select></div>
+      <div class="control"><label>Motion deviation m/s</label><input id="motion" type="number" min="0" step="0.1" value="0.1" /></div>
+    </div>
+    <button class="btn" onclick="evaluateState()">Evaluate locally</button>
+    <div id="result" class="result"><div class="status normal">NORMAL</div><div>Verified local state. No action proposal.</div></div>
+  </section>
+
+  <section class="card">
+    <h2>Architecture</h2>
+    <div class="flow">Wearable / Camera / Mic / IMU / Robot / Network / Process
+                              │
+                              ▼
+                       U1 AEGIS-Q
+                  security state model
+                              │
+                    threat + proposal
+                              ▼
+                      U1 SENTINEL v3
+                  deterministic authority
+                        │          │
+                      DENY      SIMULATE
+                                    │
+                                  ALLOW</div>
+  </section>
+
+  <section class="grid">
+    <div class="card"><h3>Detect</h3><p>Sensor spoofing, identity drift, component mismatch, robot motion deviation, network anomalies, and accessibility intent.</p></div>
+    <div class="card"><h3>Verify</h3><p>Device and runtime provenance before admission. External scanner results remain advisory, never authority.</p></div>
+    <div class="card"><h3>Authorize</h3><p>Consequential actions require Sentinel policy, explicit scope, single-use credentials, and simulation where physical effects are involved.</p></div>
+  </section>
+
+  <div class="foot">U1 AEGIS-Q v0.1 • Unmute1AI • Accessibility First. This public demo performs no destructive action, payment, health-system write, physical actuation, or official emergency alert.</div>
+</div>
+<script>
+function evaluateState(){
+ const prov=document.getElementById('prov').value;
+ const integrity=document.getElementById('integrity').value;
+ const firmware=document.getElementById('firmware').value;
+ const motion=Math.abs(parseFloat(document.getElementById('motion').value)||0);
+ let label='NORMAL', cls='normal', reason='Verified local state. No action proposal.';
+ if(firmware==='bad'||motion>0.5){label='ROBOT_ANOMALY';cls='deny';reason='Proposed response: request robot safe state. Sentinel authorization is still required.';}
+ else if(prov==='bad'||integrity==='bad'){label='SPOOFED_SENSOR';cls='deny';reason='Proposed response: quarantine sensor input. No device authority is granted.';}
+ else if(motion>0.3){label='REVIEW';cls='warn';reason='Motion discrepancy detected. Human review recommended.';}
+ document.getElementById('result').innerHTML='<div class="status '+cls+'">'+label+'</div><div>'+reason+'</div>';
+}
+</script>
+</body>
+</html>
