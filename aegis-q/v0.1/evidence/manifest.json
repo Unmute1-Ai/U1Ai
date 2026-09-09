@@ -1,0 +1,19 @@
+{
+  "artifact": "U1 AEGIS-Q",
+  "version": "0.1.0",
+  "test_exit_code": 0,
+  "test_summary": "12 passed in 0.07s",
+  "external_effects_enabled": false,
+  "nvidia_runtime_claimed_live": false,
+  "authority_lift_target": 0,
+  "baseline_reference": {
+    "name": "U1 Sentinel v3",
+    "invariants": [
+      "model capability may change without authority change",
+      "component/model provenance",
+      "explicit cross-domain consent",
+      "single-use scoped credentials",
+      "simulation before physical live action"
+    ]
+  }
+}
