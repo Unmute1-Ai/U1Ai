@@ -1,0 +1,19 @@
+{
+  "date": "2026-09-11",
+  "suite": "U1 BriefOps v3.3",
+  "pytest": "14 passed",
+  "local_test_command": "PYTHONPATH=src pytest -q",
+  "external_effects": 0,
+  "live_physical_actions": 0,
+  "financial_transactions": 0,
+  "health_writes": 0,
+  "official_alerts": 0,
+  "invariants": {
+    "model_or_component_self_grants_authority": false,
+    "cross_domain_sensitive_action_without_consent": false,
+    "credential_replay_allowed": false,
+    "raw_sensor_retention_allowed": false,
+    "live_physical_effect_without_simulation": false,
+    "verified_quantum_advantage_without_evidence": false
+  }
+}
