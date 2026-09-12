@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=U1 Network
+Comment=Ethernet and network settings
+Exec=gnome-control-center network
+Icon=network-wired
+Terminal=false
+Categories=Settings;Network;

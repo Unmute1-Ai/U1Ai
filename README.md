@@ -10,6 +10,7 @@ U1AI connects the Unmute1AI architecture with its reference implementations. The
 
 | Goal | Resource |
 | --- | --- |
+| Install the Ubuntu desktop foundation | [Unmute1AI OS 0.1](unmute1ai-os/) |
 | Understand the portfolio | [Unmute1AI project directory](https://github.com/Unmute1-Ai/Unmute1ai#readme) |
 | Explore the reference implementation | [AEGIS-Q v0.1](aegis-q/v0.1/) |
 | Run the reference demo | [AEGIS-Q setup](aegis-q/v0.1/README.md) |

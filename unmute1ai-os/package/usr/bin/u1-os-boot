@@ -1,0 +1,95 @@
+#!/usr/bin/python3
+"""Manage only the U1 Plymouth alternative; preserve the previous selection."""
+import configparser
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+
+THEMES = Path('/usr/share/plymouth/themes')
+TARGET = THEMES / 'unmute1ai'
+THEME = TARGET / 'unmute1ai.plymouth'
+STATE = Path('/var/lib/unmute1ai-os')
+BACKUP = STATE / 'boot.json'
+ART = Path('/usr/share/unmute1ai-os/artwork')
+
+def run(*args):
+    return subprocess.run(args, check=True, text=True, capture_output=True).stdout
+
+def selection():
+    try:
+        return dict(line.split(': ', 1) for line in run('update-alternatives', '--query', 'default.plymouth').splitlines() if ': ' in line)
+    except subprocess.CalledProcessError:
+        return {}
+
+def prepare():
+    source = THEMES / 'spinner'
+    if not (source / 'spinner.plymouth').is_file():
+        raise RuntimeError('Install plymouth-theme-spinner before preparing the boot screen.')
+    if not BACKUP.exists():
+        before = selection()
+        STATE.mkdir(parents=True, exist_ok=True)
+        BACKUP.write_text(json.dumps({'status':before.get('Status','auto'), 'value':before.get('Value','')}))
+    TARGET.mkdir(parents=True, exist_ok=True)
+    for p in source.iterdir():
+        if p.is_file() and p.suffix != '.plymouth':
+            shutil.copyfile(p, TARGET / p.name)
+    config = configparser.ConfigParser(interpolation=None)
+    config.optionxform = str
+    config.read(source / 'spinner.plymouth')
+    config['Plymouth Theme'] = {'Name':'Unmute1AI', 'Description':'Making every signal accessible to all', 'ModuleName':'two-step'}
+    config['two-step'].update({
+        'ImageDir':str(TARGET), 'WatermarkHorizontalAlignment':'.5',
+        'WatermarkVerticalAlignment':'.18', 'DialogVerticalAlignment':'.65',
+        'TitleVerticalAlignment':'.65', 'VerticalAlignment':'.82',
+        'BackgroundStartColor':'0x020912', 'BackgroundEndColor':'0x020912',
+        'ProgressBarForegroundColor':'0x39aaff',
+    })
+    with THEME.open('w') as f: config.write(f, space_around_delimiters=False)
+    shutil.copyfile(ART / 'watermark.png', TARGET / 'watermark.png')
+    run('update-alternatives', '--install', str(THEMES / 'default.plymouth'), 'default.plymouth', str(THEME), '20')
+
+def enable():
+    if not BACKUP.exists():
+        before = selection()
+        STATE.mkdir(parents=True, exist_ok=True)
+        BACKUP.write_text(json.dumps({'status':before.get('Status','auto'), 'value':before.get('Value','')}))
+    prepare()
+    run('update-alternatives', '--set', 'default.plymouth', str(THEME))
+    try:
+        run('update-initramfs', '-u', '-k', 'all')
+    except subprocess.CalledProcessError:
+        restore_selection()
+        raise RuntimeError('Initramfs update failed; previous theme selection restored. Resolve the initramfs error before rebooting.')
+    print('Unmute1AI startup enabled. Reboot when ready. Ubuntu must have splash enabled in its boot arguments.')
+
+def restore_selection():
+    if selection().get('Value') != str(THEME): return
+    before = json.loads(BACKUP.read_text()) if BACKUP.exists() else {}
+    old = before.get('value', '')
+    if before.get('status') == 'manual' and old != str(THEME) and Path(old).is_file():
+        run('update-alternatives', '--set', 'default.plymouth', old)
+    else:
+        run('update-alternatives', '--auto', 'default.plymouth')
+
+def disable():
+    restore_selection()
+    if THEME.exists():
+        run('update-alternatives', '--remove', 'default.plymouth', str(THEME))
+        run('update-initramfs', '-u', '-k', 'all')
+        shutil.rmtree(TARGET)
+    BACKUP.unlink(missing_ok=True)
+    print('Unmute1AI boot theme removed.')
+
+if __name__ == '__main__':
+    if os.geteuid() != 0:
+        sys.exit('Run this command with sudo.')
+    actions = {'prepare':prepare, 'enable':enable, 'disable':disable}
+    if len(sys.argv) != 2 or sys.argv[1] not in actions:
+        sys.exit('Usage: sudo u1-os-boot prepare|enable|disable')
+    try: actions[sys.argv[1]]()
+    except (OSError, RuntimeError, subprocess.CalledProcessError) as error:
+        if isinstance(error, subprocess.CalledProcessError): print(error.stderr, file=sys.stderr)
+        sys.exit(str(error))

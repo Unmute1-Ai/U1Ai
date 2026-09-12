@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Unmute1AI Start
+Comment=Desktop setup, accessibility and system controls
+Exec=u1-start
+Icon=/usr/share/unmute1ai-os/artwork/launcher.png
+Terminal=false
+Categories=Utility;Accessibility;
+Keywords=U1;Unmute;Start;Accessibility;
+StartupNotify=true

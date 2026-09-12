@@ -1,0 +1,11 @@
+Package: unmute1ai-os-desktop
+Version: 0.1.0
+Architecture: all
+Maintainer: Unmute1AI <Matthew@u1ai.app>
+Section: x11
+Priority: optional
+Depends: python3, python3-gi, gir1.2-gtk-4.0, gsettings-desktop-schemas, gnome-control-center, plymouth-theme-spinner, plymouth-label, initramfs-tools, xdg-utils, dconf-gsettings-backend, dconf-cli
+Recommends: orca, gnome-terminal, nautilus
+Description: Unmute1AI desktop foundation for Ubuntu 24.04 LTS
+ Branded startup, wallpaper and accessible GTK welcome application.
+ This package does not include AI models or a bootable operating system image.

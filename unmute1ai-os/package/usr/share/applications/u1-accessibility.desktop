@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=U1 Accessibility
+Comment=Screen reader, magnifier, keyboard and visual settings
+Exec=gnome-control-center universal-access
+Icon=preferences-desktop-accessibility
+Terminal=false
+Categories=Settings;Accessibility;

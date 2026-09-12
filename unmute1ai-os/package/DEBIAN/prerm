@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+case "$1" in
+    remove|deconfigure) /usr/bin/u1-os-boot disable ;;
+esac

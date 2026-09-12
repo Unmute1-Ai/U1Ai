@@ -1,0 +1,166 @@
+#!/usr/bin/python3
+"""Unmute1AI Start. No network requests or model inference in this application."""
+import json
+import os
+from pathlib import Path
+import shutil
+import subprocess
+import sys
+
+ART = Path('/usr/share/unmute1ai-os/artwork')
+STATE = Path(os.environ.get('XDG_STATE_HOME', Path.home() / '.local/state')) / 'unmute1ai-os'
+BACKUP = STATE / 'desktop.json'
+SETTINGS = [
+    ('org.gnome.desktop.background','picture-uri', "'file:///usr/share/unmute1ai-os/artwork/desktop.jpg'"),
+    ('org.gnome.desktop.background','picture-uri-dark', "'file:///usr/share/unmute1ai-os/artwork/desktop.jpg'"),
+    ('org.gnome.desktop.background','picture-options', "'scaled'"),
+    ('org.gnome.desktop.background','primary-color', "'#020912'"),
+    ('org.gnome.desktop.interface','color-scheme', "'prefer-dark'"),
+    ('org.gnome.shell.extensions.dash-to-dock','dock-position', "'BOTTOM'"),
+    ('org.gnome.shell.extensions.dash-to-dock','extend-height', 'false'),
+    ('org.gnome.shell.extensions.dash-to-dock','dash-max-icon-size', '48'),
+    ('org.gnome.shell.extensions.dash-to-dock','background-opacity', '0.85'),
+    ('org.gnome.shell.extensions.dash-to-dock','transparency-mode', "'FIXED'"),
+]
+
+def command(*args):
+    return subprocess.run(args, check=True, capture_output=True, text=True).stdout.strip()
+
+def supported(schema, key):
+    return schema in command('gsettings','list-schemas').splitlines() and key in command('gsettings','list-keys',schema).splitlines()
+
+def apply_desktop():
+    STATE.mkdir(parents=True, exist_ok=True)
+    saved = json.loads(BACKUP.read_text()) if BACKUP.exists() else {}
+    for schema, key, value in SETTINGS:
+        if not supported(schema, key): continue
+        path = '/' + schema.replace('.', '/') + '/' + key
+        token = schema + '|' + key
+        if token not in saved:
+            # Preserve the presence/absence of an explicit user value, not only its effective default.
+            saved[token] = command('dconf', 'read', path) or None
+            temp = BACKUP.with_suffix('.tmp')
+            temp.write_text(json.dumps(saved, indent=2)); temp.replace(BACKUP)
+        command('gsettings','set',schema,key,value)
+    print('Unmute1AI desktop applied. Previous personal settings saved.')
+
+def restore_desktop():
+    if not BACKUP.exists():
+        print('No personal desktop backup exists.'); return
+    saved = json.loads(BACKUP.read_text())
+    for token, value in saved.items():
+        schema, key = token.split('|',1)
+        if not supported(schema,key): continue
+        if value is None: command('gsettings','reset',schema,key)
+        else: command('gsettings','set',schema,key,value)
+    BACKUP.unlink()
+    print('Previous personal desktop settings restored.')
+
+CSS = b'''
+window { background: #101216; color: #f1f3f6; }
+.sidebar { background: #181b21; border-right: 1px solid #2b2f37; padding: 24px 14px; }
+.wordmark { font-size: 19px; font-weight: 700; letter-spacing: 1px; }
+.eyebrow { color: #6ebaff; font-size: 11px; font-weight: 700; letter-spacing: 2px; }
+.hero { font-size: 36px; font-weight: 700; letter-spacing: -1px; }
+.subtitle { color: #aeb8c7; font-size: 15px; }
+.muted { color: #9aa6b7; font-size: 12px; }
+.card { background: #1b1f27; border: 1px solid #303642; border-radius: 18px; padding: 20px; }
+.card-title { font-size: 17px; font-weight: 600; }
+button { border-radius: 11px; padding: 11px 16px; background: #292f3a; color: #f6f8ff; border: 1px solid #414958; box-shadow: none; }
+button:hover { background: #394354; }
+button:focus-visible { outline: 3px solid #82c7ff; outline-offset: 2px; }
+button.primary { background: #2583dc; border-color: #55aaff; color: white; }
+button.primary:hover { background: #3495ef; }
+.navigation { background: transparent; border-color: transparent; }
+.banner { border-radius: 16px; }
+'''
+
+def main():
+    if os.geteuid() == 0:
+        sys.exit('Open Unmute1AI Start as your desktop user, without sudo.')
+    if '--apply' in sys.argv: apply_desktop(); return
+    if '--restore' in sys.argv: restore_desktop(); return
+    if '--autostart' in sys.argv and (STATE / 'welcomed').exists(): return
+    import gi
+    gi.require_version('Gtk','4.0')
+    from gi.repository import Gtk, Gdk, Gio
+
+    class Start(Gtk.Application):
+        def __init__(self):
+            super().__init__(application_id='app.u1ai.Start', flags=Gio.ApplicationFlags.DEFAULT_FLAGS)
+        def label(self, text, css=None):
+            label=Gtk.Label(label=text, xalign=0)
+            label.set_wrap(True)
+            if css: label.add_css_class(css)
+            return label
+        def launch(self, *args):
+            try:
+                if not shutil.which(args[0]): raise RuntimeError('This application is not installed: '+args[0])
+                subprocess.Popen(args)
+                self.status.set_text('Opened '+args[0]+'.')
+            except (OSError, RuntimeError) as error: self.status.set_text(str(error))
+        def action(self, operation):
+            try:
+                operation()
+                self.status.set_text('Done. Your settings are saved.')
+            except (OSError, subprocess.CalledProcessError) as error:
+                self.status.set_text('Could not apply settings: '+str(error))
+        def button(self,text,callback,primary=False):
+            button=Gtk.Button(label=text)
+            if primary: button.add_css_class('primary')
+            button.connect('clicked',lambda _:callback())
+            return button
+        def panel(self,title,description,buttons):
+            box=Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=12)
+            box.add_css_class('card');box.set_hexpand(True)
+            box.append(self.label(title,'card-title'))
+            box.append(self.label(description,'subtitle'))
+            for text,action in buttons: box.append(self.button(text,action))
+            return box
+        def do_activate(self):
+            existing=self.get_active_window()
+            if existing: existing.present(); return
+            provider=Gtk.CssProvider();provider.load_from_data(CSS)
+            Gtk.StyleContext.add_provider_for_display(Gdk.Display.get_default(),provider,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+            window=Gtk.ApplicationWindow(application=self,title='Unmute1AI Start')
+            window.set_default_size(1080,760)
+            header=Gtk.HeaderBar();header.set_show_title_buttons(True)
+            window.set_titlebar(header)
+            layout=Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
+            sidebar=Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=14)
+            sidebar.add_css_class('sidebar');sidebar.set_size_request(206,-1)
+            icon=Gtk.Image.new_from_file(str(ART/'launcher.png'));icon.set_pixel_size(72)
+            sidebar.append(icon);sidebar.append(self.label('Unmute1AI','wordmark'))
+            sidebar.append(self.label('DESKTOP / 0.1','eyebrow'))
+            for title,args in [('Accessibility',('gnome-control-center','universal-access')),('Appearance',('gnome-control-center','background')),('Wi-Fi',('gnome-control-center','wifi')),('Ethernet',('gnome-control-center','network')),('Sound',('gnome-control-center','sound')),('Settings',('gnome-control-center',))]:
+                button=self.button(title,lambda a=args:self.launch(*a));button.add_css_class('navigation');sidebar.append(button)
+            spacer=Gtk.Box();spacer.set_vexpand(True);sidebar.append(spacer)
+            sidebar.append(self.label('Accessibility first.\nEvery signal matters.','muted'))
+            layout.append(sidebar)
+            scroll=Gtk.ScrolledWindow();scroll.set_hexpand(True)
+            content=Gtk.Box(orientation=Gtk.Orientation.VERTICAL,spacing=20)
+            for method in (content.set_margin_start,content.set_margin_end,content.set_margin_top,content.set_margin_bottom):method(30)
+            content.append(self.label('WELCOME HOME','eyebrow'))
+            content.append(self.label('Your space. Your signal.','hero'))
+            content.append(self.label('A calmer desktop. Built around the way you work.','subtitle'))
+            banner=Gtk.Picture.new_for_filename(str(ART/'boot-banner.jpg'))
+            banner.set_can_shrink(True);banner.set_content_fit(Gtk.ContentFit.CONTAIN)
+            banner.set_size_request(-1,160);banner.add_css_class('banner');content.append(banner)
+            content.append(self.button('Make this my desktop',lambda:self.action(apply_desktop),True))
+            content.append(self.panel('Made for you','Set the screen, sound, and controls to suit you.',[
+                ('Accessibility settings',lambda:self.launch('gnome-control-center','universal-access')),
+                ('Display settings',lambda:self.launch('gnome-control-center','display'))]))
+            content.append(self.panel('Your workspace','Files and tools, one step away.',[
+                ('Open Files',lambda:self.launch('nautilus')),
+                ('Open Terminal',lambda:self.launch('gnome-terminal')),
+                ('Visit u1ai.app ↗',lambda:self.launch('xdg-open','https://u1ai.app'))]))
+            content.append(self.button('Restore my previous desktop',lambda:self.action(restore_desktop)))
+            content.append(self.label('Ubuntu 24.04 LTS · Desktop foundation 0.1\nAI runtimes are not included in this release.','muted'))
+            self.status=self.label('Ready.','muted');self.status.set_selectable(True);content.append(self.status)
+            scroll.set_child(content);layout.append(scroll);window.set_child(layout)
+            window.present()
+            STATE.mkdir(parents=True,exist_ok=True);(STATE/'welcomed').touch()
+    Start().run([sys.argv[0]])
+
+if __name__=='__main__':
+    main()

@@ -1,0 +1,8 @@
+[org.gnome.desktop.background]
+picture-uri='file:///usr/share/unmute1ai-os/artwork/desktop.jpg'
+picture-uri-dark='file:///usr/share/unmute1ai-os/artwork/desktop.jpg'
+picture-options='scaled'
+primary-color='#020912'
+
+[org.gnome.desktop.interface]
+color-scheme='prefer-dark'

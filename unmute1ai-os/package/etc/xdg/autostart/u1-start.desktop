@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Unmute1AI Welcome
+Exec=u1-start --autostart
+Icon=/usr/share/unmute1ai-os/artwork/launcher.png
+OnlyShowIn=GNOME;Unity;
+X-GNOME-Autostart-enabled=true
