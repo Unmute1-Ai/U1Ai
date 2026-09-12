@@ -51,7 +51,7 @@ bash build.sh
 python3 -m unittest discover -s tests -v
 ```
 
-See `VALIDATION.md` for exactly what was tested and `ISO-BUILD.md` for the remaining bootable-image workflow. Ubuntu's package manager and OS identity remain intact so distribution detection and updates continue to work.
+See `VALIDATION.md` for exactly what was tested and `ISO-BUILD.md` for the automated live-preview image build and the separate installable-image workflow. A successful GitHub Actions run supplies the live ISO download; source code alone does not establish a successful boot. Ubuntu's package manager and OS identity remain intact so distribution detection and updates continue to work.
 
 ## References
 

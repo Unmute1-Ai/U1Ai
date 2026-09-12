@@ -1,0 +1,55 @@
+name: Unmute1AI live ISO
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'unmute1ai-os/**'
+      - '.github/workflows/unmute1ai-live-iso.yml'
+permissions:
+  contents: read
+concurrency:
+  group: unmute1ai-live-iso
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify source and build package
+        run: |
+          python3 -m unittest discover -s unmute1ai-os/tests -v
+          find unmute1ai-os -type d -name __pycache__ -prune -exec rm -r {} +
+          bash -n unmute1ai-os/iso/build-live.sh unmute1ai-os/iso/live-ready.sh
+          bash unmute1ai-os/build.sh
+      - name: Install image build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin grub-common mtools qemu-system-x86 ubuntu-keyring
+      - name: Build live image
+        run: sudo bash unmute1ai-os/iso/build-live.sh "$RUNNER_TEMP/u1-iso"
+      - name: Boot live filesystem in VM
+        run: sudo python3 unmute1ai-os/iso/test-live.py "$RUNNER_TEMP/u1-iso"
+      - name: Save verified live image
+        uses: actions/upload-artifact@v4
+        with:
+          name: Unmute1AI-OS-0.1-live-amd64
+          path: |
+            ${{ runner.temp }}/u1-iso/*.iso
+            ${{ runner.temp }}/u1-iso/SHA256SUMS
+            ${{ runner.temp }}/u1-iso/packages.txt
+            ${{ runner.temp }}/u1-iso/BOOT-RESULT.txt
+          compression-level: 0
+          retention-days: 7
+          if-no-files-found: error
+      - name: Save boot diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Unmute1AI-boot-diagnostics
+          path: ${{ runner.temp }}/u1-iso/boot-serial.log
+          retention-days: 7
+          if-no-files-found: ignore

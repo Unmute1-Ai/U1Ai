@@ -1,0 +1,12 @@
+[Unit]
+Description=Unmute1AI live image CI readiness probe
+After=display-manager.service
+ConditionKernelCommandLine=u1.selftest=1
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/u1-live-ready
+TimeoutStartSec=200
+
+[Install]
+WantedBy=graphical.target

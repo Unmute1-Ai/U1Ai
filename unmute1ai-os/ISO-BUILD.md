@@ -1,6 +1,18 @@
-# Bootable image — remaining build step
+# Bootable image build routes
 
-Status: no ISO was generated or boot-tested in this environment. The host has no mount/chroot capabilities or VM device. This is a workflow for a suitable Ubuntu build machine, not a claim of a completed operating-system release.
+## Automated live preview
+
+The `Unmute1AI live ISO` GitHub Actions workflow builds an amd64 Ubuntu Noble live image with GNOME, the U1 package and the supplied artwork. It runs on pushes affecting this project, or manually from Actions. An artifact is uploaded only after the kernel/initramfs live-root smoke test passes. Download the ISO and SHA256SUMS from that successful run; artifacts expire after seven days.
+
+The live image is for trying the desktop. It has no permanent disk installer and no persistent user data. The standard live account can use sudo without a password; do not deploy this live session as a persistent or remotely exposed workstation. No SSH server is installed. Custom grub-mkrescue media are not signed for Secure Boot; use a VM with Secure Boot off for this preview.
+
+The VM check directly loads the kernel/initrd and mounts the generated ISO. It confirms an active display manager, live user and U1 assets. It does not verify firmware/GRUB boot, visible rendering, screen readers or real hardware. Ubuntu repository signatures are checked; the generated image is not byte-reproducible because current Noble updates are resolved at build time. The artifact includes exact installed package versions.
+
+For a local disposable Ubuntu 24.04 build VM, install the dependencies listed in `.github/workflows/unmute1ai-live-iso.yml`, then run `sudo bash unmute1ai-os/iso/build-live.sh /var/tmp/u1-output` from the repository root. Do not run on a machine containing valuable work: this is a privileged image build with mounts and chroot operations.
+
+## Installable desktop image via Cubic
+
+Status at implementation: no ISO was generated or boot-tested in this chat environment. The host has no mount/chroot capabilities or VM device. This is a workflow for a suitable Ubuntu build machine, not a claim of a completed operating-system release.
 
 Use an Ubuntu Desktop 24.04 LTS amd64 base image for an Intel/AMD PC. Obtain it from Ubuntu and verify the signed checksum using Ubuntu's instructions. Build in a disposable Ubuntu VM with sufficient disk space for both extracted and compressed images.
 
