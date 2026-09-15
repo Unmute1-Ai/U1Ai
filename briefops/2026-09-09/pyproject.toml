@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "u1-briefops-v3-delta"
+version = "3.1.0"
+description = "U1 BriefOps v3 security and orchestration delta"
+requires-python = ">=3.11"
+dependencies = ["cryptography>=41"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
