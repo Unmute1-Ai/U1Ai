@@ -1,0 +1,10 @@
+{
+  "schema":"u1.briefops.v3.delta/1",
+  "date":"2026-09-15",
+  "security_baseline":"Sentinel v3.7 hardened",
+  "invariants":["signed_model_provenance","component_admission_before_runtime","cross_domain_authority_gate","explicit_sensitive_transition_consent","scoped_single_use_credentials","simulation_before_live_physical_effect","accessibility_modality_normalization_no_raw_sensor_retention","annealmesh_fabrication_maturity_and_verified_advantage","ed25519_sha3_effect_receipts","understanding_not_authority","fail_closed_offline"],
+  "updates":{"OmniSign":["retain local-first modality normalization","raw sensor retention remains denied by default","language/access expansion candidate only"],"SIGNAL":["bind normalized accessible intent to exact-effect authorization digest","no raw audio/video retention by default"],"PRIMER":["tag agent actions by domain/risk","require explicit consent for sensitive transitions"],"Sentinel_v3":["agent reasoning remains proposal-only","signed component admission required","offline loss of verifier never increases authority","exact-effect target digest revalidated before mutation"],"AuthorityBench_v3":["reasoning-to-privilege injection","target/parameter substitution","expired/replay/offline fail-closed","model-upgrade-without-independent-evidence denial"],"AnnealMesh":["quantum claims require fabrication_maturity","verified_advantage=true requires evidence reference","routing never changes authority"],"BriefOps":["frontier-model promotion requires signed provenance plus independent safety evidence","news can tighten policy but cannot mint authority"]},
+  "prohibited_effects":{"destructive_actions":0,"live_physical_actuation":0,"financial_transactions":0,"health_writes":0,"unauthenticated_official_alerts":0},
+  "test_result":{"command":"PYTHONPATH=src pytest -q","passed":42,"failed":0,"duration_seconds":0.12},
+  "no_change":["No production quantum capability added","No live physical execution enabled","No financial or health action path added","No authority source changed to model/inspector/component"]
+}
