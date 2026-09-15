@@ -1,0 +1,10 @@
+{
+  "date": "2026-09-11",
+  "sources": [
+    {"id":"openai-government","published":"2026-09-10","url":"https://openai.com/index/expanding-ai-access-us-government/"},
+    {"id":"nvidia-palantir","published":"2026-09-10","url":"https://nvidianews.nvidia.com/news/nvidia-and-palantir-bring-sovereign-intelligence-to-critical-supply-chains"},
+    {"id":"anthropic-threat-intel","published":"2026-09-10","url":"https://www.reuters.com/legal/litigation/anthropic-disrupts-russian-chinese-ai-campaigns-targeting-its-claude-models-2026-09-10/"},
+    {"id":"gemini-windows","published":"2026-09-10","url":"https://blog.google/innovation-and-ai/products/gemini-app/gemini-app-now-on-windows/"},
+    {"id":"quantum-ram","published":"2026-09-08","url":"https://www.nature.com/articles/s41567-026-03418-w"}
+  ]
+}

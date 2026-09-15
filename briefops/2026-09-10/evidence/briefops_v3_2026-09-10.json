@@ -1,0 +1,17 @@
+{
+  "date": "2026-09-10",
+  "version": "3.2.0",
+  "tests": "17 passed",
+  "external_effects": 0,
+  "physical_live_actions": 0,
+  "files": [
+    {"path":"README.md","sha3_256":"48a685ad5c55b7fda41cb73c29eb409f6df19248213cecfce9e994942dd55fe3"},
+    {"path":"evidence/pytest.txt","sha3_256":"845657187cda6e96f02c7ccf6cf35629ce3d6480ea15c326e23099f67aa57dee"},
+    {"path":"pyproject.toml","sha3_256":"1d2bc92953a123c45d5bf5019c767a82b5a2f2760b6c76c7c115fd8469e47fd8"},
+    {"path":"src/u1_briefops/__init__.py","sha3_256":"252a19ed2a1840c88f3aeaa26ba741c490bf5fedbe1285000a16177f06176717"},
+    {"path":"src/u1_briefops/annealmesh.py","sha3_256":"9f632b9b57489de1d421c65f7ce7b3fdbca48e0b6c642b3dd58d086a1c2623c6"},
+    {"path":"src/u1_briefops/modality.py","sha3_256":"efc5affc05e85eb33924f207049d751721b39458dab0cfb1291acd16da5c1b54"},
+    {"path":"src/u1_briefops/sentinel.py","sha3_256":"139ae09d8690f8e9ccbcc289b85a48caed5416f76086a70ee548a8b629813917"},
+    {"path":"tests/test_briefops.py","sha3_256":"6425755c1cfa02afe279f1c4daf9f07b5cd8ab72a310cc41118b289c00f8838b"}
+  ]
+}

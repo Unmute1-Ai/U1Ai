@@ -1,0 +1,9 @@
+[project]
+name = "u1-briefops-2026-09-11"
+version = "3.3.0"
+requires-python = ">=3.10"
+dependencies = ["cryptography>=42"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
