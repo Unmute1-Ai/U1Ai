@@ -1,0 +1,40 @@
+{
+  "manifest_version": "u1-briefops-v3",
+  "date": "2026-09-18",
+  "source_window_hours": 48,
+  "tests": {
+    "status": "not_run_in_automation_runtime",
+    "reason": "No local package test command was available in the current runtime; no test result is claimed."
+  },
+  "security_baseline": {
+    "signed_model_provenance": "preserved",
+    "component_admission_before_runtime": "preserved",
+    "cross_domain_authority_gating": "preserved",
+    "explicit_consent_sensitive_transitions": "preserved",
+    "scoped_single_use_credentials": "preserved",
+    "physical_simulation_before_live": "preserved",
+    "accessibility_normalization_raw_sensor_retention": "preserved",
+    "annealmesh_fabrication_maturity_verified_advantage": "preserved",
+    "ed25519_sha3_effect_receipts": "preserved",
+    "model_inspector_component_self_authority": "forbidden"
+  },
+  "updates": [
+    {"item": 1, "targets": ["Sentinel v3", "AuthorityBench v3", "BriefOps"], "change": "Add regression cases for hidden instructions, unauthorized external publication, credential misuse, and cross-agent data sharing; require incident provenance and disclosure-track metadata."},
+    {"item": 2, "targets": ["AnnealMesh", "Sentinel v3", "BriefOps"], "change": "Record capability-growth evidence separately from authority; require evaluator independence metadata and fabrication_maturity descriptors before admission."},
+    {"item": 3, "targets": ["Sentinel v3", "AuthorityBench v3", "SIGNAL", "PRIMER"], "change": "Add chained-tool attack cases covering target substitution, credential scoping, replay, and benign-tool escalation; keep offline execution fail-closed."},
+    {"item": 4, "targets": ["BriefOps", "Sentinel v3"], "change": "No runtime change. Add interoperable evidence-schema note for shared safety reporting and signed receipts."},
+    {"item": 5, "targets": ["OmniSign", "SIGNAL", "PRIMER", "AnnealMesh", "Sentinel v3"], "change": "Add specialized-model evaluation lane with signed provenance, model-adapter admission, and explicit separation between domain capability and authority."}
+  ],
+  "no_change": [
+    "No fresh high-confidence accessibility/assistive-tech evidence justified a runtime change.",
+    "No fresh high-confidence quantum evidence justified verified_advantage=true or production promotion.",
+    "No destructive actions, live physical actuation, financial transactions, health writes, or unauthenticated official alerts were performed."
+  ],
+  "sources": [
+    "https://openai.com/index/model-misalignment-reporting-framework/",
+    "https://www.anthropic.com/institute/measuring-pace-of-ai-development",
+    "https://www.theguardian.com/technology/2026/sep/18/openai-hacked-anthropic-claude-chatbot",
+    "https://www.reuters.com/world/doj-official-says-frontier-ai-labs-have-not-sought-meeting-antitrust-2026-09-17/",
+    "https://investor.salesforce.com/news/news-details/2026/Announcing-Koa-Salesforces-First-CRM-Reasoning-Model-Built-on-NVIDIA-Nemotron/default.aspx"
+  ]
+}
