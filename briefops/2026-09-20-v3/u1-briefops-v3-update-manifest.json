@@ -1,0 +1,26 @@
+{
+  "manifest_version": "u1-briefops-v3-delta-2026-09-20",
+  "source_window_hours": 48,
+  "news_items": 5,
+  "security_baseline": "U1 Sentinel v3",
+  "updates": [
+    {"item": 1, "components": ["Sentinel v3", "AuthorityBench v3", "BriefOps"], "changes": ["deny_non_isolated_test_environment", "bind_exact_target_identity", "deny_public_credential_exposure", "deny_post_admission_substitution"]},
+    {"item": 2, "components": ["AnnealMesh", "BriefOps", "Sentinel v3"], "changes": ["record_evaluator_independence_metadata", "evaluator_outputs_advisory_only", "no_self_granting_authority"]},
+    {"item": 3, "components": ["BriefOps", "Sentinel v3", "AuthorityBench v3"], "changes": ["observer_proposer_only_for_compliance_agents", "no_self_remediation_credentials", "single_use_scoped_credentials"]},
+    {"item": 4, "components": ["AuthorityBench v3", "Sentinel v3"], "changes": ["behavioral_anomaly_after_success_fixture", "anomaly_detection_not_authorization"]},
+    {"item": 5, "components": ["AnnealMesh", "BriefOps"], "changes": ["record_quantum_genesis_q_evidence", "verified_advantage_false_until_reproducible", "no_live_quantum_execution_change"]}
+  ],
+  "no_change": [
+    {"area": "OmniSign/SIGNAL accessibility runtime", "reason": "no qualifying fresh primary-source development in 24-48h scan"},
+    {"area": "live physical actuation", "reason": "prohibited by task"},
+    {"area": "financial transactions", "reason": "prohibited by task"},
+    {"area": "health writes", "reason": "prohibited by task"},
+    {"area": "unauthenticated official alerts", "reason": "prohibited by task"}
+  ],
+  "test_run": {
+    "command": "python -m pytest -q",
+    "status": "not_run_in_automation_runtime",
+    "reason": "No local repository checkout/package test command was available; no result was fabricated."
+  },
+  "push_policy": "push only after confirming GitHub write access"
+}
