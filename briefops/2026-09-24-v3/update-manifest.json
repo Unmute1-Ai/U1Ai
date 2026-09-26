@@ -1,0 +1,18 @@
+{
+  "manifest_version": "u1-briefops-v3",
+  "date": "2026-09-24",
+  "briefing_item_count": 5,
+  "source_refs": ["turn576291news1", "turn576291news9", "turn576291news11", "turn576291news17", "turn576291news84"],
+  "updates": [
+    {"component":"OmniSign","status":"updated","changes":["Guided vision modality fixture","uncertainty disclosure","explicit user confirmation","raw_sensor_retention=false"]},
+    {"component":"SIGNAL","status":"updated","changes":["Gemini TTS evaluation","normalized voice output","no direct model-to-effect path"]},
+    {"component":"PRIMER","status":"updated","changes":["assistive descriptions can be wrong","task success != authorization"]},
+    {"component":"Sentinel v3","status":"updated","changes":["signed provenance","component admission before runtime","cross-domain gating","single-use credentials","Ed25519/SHA3 receipts"]},
+    {"component":"AuthorityBench v3","status":"updated","changes":["authorized cyber-defense scope tests","camera-guidance uncertainty tests","containment claims treated as evidence"]},
+    {"component":"AnnealMesh","status":"updated","changes":["external-evaluation provenance","fabrication_maturity","verified_advantage","methodology/scope separation"]},
+    {"component":"BriefOps","status":"updated","changes":["evidence-linked source map","explicit no_change for quantum production execution","image availability recorded"]}
+  ],
+  "no_change": ["production quantum execution", "automatic cyber remediation", "financial transactions, health writes, destructive actions, real physical actuation, unauthenticated official alerts"],
+  "safety_invariants": ["model, inspector, evaluator, and component cannot grant itself authority", "no destructive actions", "no real physical actuation", "no financial transactions", "no health writes", "no unauthenticated official alerts"],
+  "tests": {"command":"python validate_manifest.py", "result":"passed", "output":"manifest_valid"}
+}
