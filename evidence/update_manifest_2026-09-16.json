@@ -1,0 +1,24 @@
+{
+  "schema": "u1/briefops/update-manifest/v3",
+  "date": "2026-09-16",
+  "security_baseline": "Sentinel v3.7 hardened",
+  "test_result": {"passed": 42, "failed": 0, "command": "PYTHONPATH=src pytest -q"},
+  "sources": [
+    {"id":"google-gemini-live-20260915","url":"https://blog.google/innovation-and-ai/technology/developers-tools/build-real-time-voice-applications-gemini-audio/","material":true},
+    {"id":"reuters-aepd-agent-breach-20260915","url":"https://www.reuters.com/business/spanish-data-watchdog-publicises-first-ai-agent-linked-data-breach-report-2026-09-15/","material":true},
+    {"id":"nvidia-koa-20260915","url":"https://blogs.nvidia.com/blog/jensen-huang-dreamforce/","material":true},
+    {"id":"wsj-factory-20260916","url":"https://www.wsj.com/tech/ai/ai-coding-startup-factory-more-than-triples-valuation-to-5-billion-871da697","material":true},
+    {"id":"ionq-ieee-quantum-week-20260916","url":"https://www.ionq.com/news/ionq-earns-four-best-paper-awards-ahead-of-ieee-quantum-week-2026-for-breakthroughs-in-ai-hybrid-computing-and-life-sciences","material":true}
+  ],
+  "updates": {
+    "OmniSign": ["Add optional Gemini Live adapter behind signed model provenance and component admission; normalize voice/text/ASL intent before policy evaluation; raw audio/video retention remains disabled by default."],
+    "SIGNAL": ["Add real-time voice-provider capability descriptor and local/cloud disclosure boundary; no provider gains authority from transcription or reasoning output."],
+    "PRIMER": ["Evaluate real-time multilingual voice tutoring as an admitted modality; sensitive cross-domain actions still require explicit consent and scoped credentials."],
+    "Sentinel v3": ["Add regression requirement for autonomous-agent data access: model reasoning cannot mint scopes; exact target digest and signature revalidated immediately before effect; offline verifier failure denies."],
+    "AuthorityBench v3": ["Add agent-led breach scenarios: reasoning-to-privilege injection, data-view scope escalation, mutation after authorization, telemetry outage, stale cached policy, and receipt suppression."],
+    "AnnealMesh": ["Add model-adapter evaluation lane for Gemini Live/Nemotron-derived systems; fabrication_maturity=production only for demonstrated deployed software, verified_advantage=false unless reproducible U1 benchmark evidence exists.", "Quantum: no change to execution path; fabrication_maturity remains research/evidence tracking and verified_advantage=false for U1 workloads."],
+    "BriefOps": ["Record model provenance/source date/provider for each proposed adapter; funding news changes market tracking only and grants no runtime authority."]
+  },
+  "invariants": ["understanding != authority","no model, inspector, evaluator, or component can self-grant authority","component admission precedes runtime","sensitive cross-domain transitions require explicit consent","credentials are scoped and single-use","live physical effects require matching simulation authorization","raw accessibility sensor streams are not retained by default","effect receipts are Ed25519 signed and SHA3 chained","verification failure reduces capability and never increases authority"],
+  "prohibited_effects_executed": []
+}
