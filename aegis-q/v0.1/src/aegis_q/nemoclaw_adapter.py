@@ -12,18 +12,38 @@ from dataclasses import dataclass
 import hashlib
 import json
 import math
+import time
 from typing import Any, Callable, Mapping, Protocol
 
 from .sentinel_bridge import ActionProposal
 
 
 class ProposalClient(Protocol):
-    """Minimal contract implemented by a configured NemoClaw agent client."""
+    """Configured client that applies the caller's monotonic deadline to I/O."""
 
-    def propose(self, request: Mapping[str, Any]) -> Mapping[str, Any]: ...
+    def propose(
+        self,
+        request: Mapping[str, Any],
+        *,
+        deadline_monotonic: float,
+    ) -> Mapping[str, Any]: ...
 
 
-EvidenceVerifier = Callable[[str], bool]
+@dataclass(frozen=True)
+class EvidenceScope:
+    """Immutable context a verifier must match against the referenced receipt."""
+
+    request_sha256: str
+    action: str
+    parameters_json: str
+    evidence_refs: tuple[str, ...]
+    action_digest: str
+    deadline_monotonic: float
+
+
+EvidenceVerifier = Callable[[str, EvidenceScope], bool]
+MAX_PROPOSAL_TIMEOUT_SECONDS = 30.0
+MAX_REQUEST_BYTES = 64 * 1024
 MAX_PARAMETER_BYTES = 64 * 1024
 MAX_EVIDENCE_REFS = 64
 
@@ -35,11 +55,32 @@ class ProposalBoundaryResult:
     proposal: ActionProposal | None = None
     evidence_refs: tuple[str, ...] = ()
     parameters_json: str | None = None
+    request_sha256: str | None = None
 
 
-def _digest(action: str, parameters: Mapping[str, Any], evidence_refs: tuple[str, ...]) -> str:
+def _canonical_json(value: Any) -> str:
+    return json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    )
+
+
+def _digest(
+    request_sha256: str,
+    action: str,
+    parameters: Mapping[str, Any],
+    evidence_refs: tuple[str, ...],
+) -> str:
     canonical = json.dumps(
-        {"action": action, "parameters": parameters, "evidence_refs": evidence_refs},
+        {
+            "request_sha256": request_sha256,
+            "action": action,
+            "parameters": parameters,
+            "evidence_refs": evidence_refs,
+        },
         sort_keys=True,
         separators=(",", ":"),
         ensure_ascii=False,
@@ -65,17 +106,59 @@ def request_nemoclaw_proposal(
     request: Mapping[str, Any],
     *,
     evidence_verifier: EvidenceVerifier,
+    timeout_seconds: float,
 ) -> ProposalBoundaryResult:
-    """Obtain one candidate and verify its evidence; Sentinel still decides.
+    """Obtain one bounded candidate and verify evidence against its exact scope.
 
-    A missing verifier, malformed response, unverified evidence, transport
-    failure, or invalid field returns DENY. The model's confidence is preserved
-    as metadata only; it never grants permission.
+    The client and verifier must enforce the supplied monotonic deadline in
+    their own I/O operations. This synchronous boundary cannot interrupt a
+    non-cooperative implementation, so late responses and explicit timeouts
+    fail closed, while implementations remain responsible for bounded calls.
+    Sentinel still makes the authorization decision.
     """
     if not callable(evidence_verifier):
         return ProposalBoundaryResult("DENY", "evidence_verifier_required")
+    if (
+        isinstance(timeout_seconds, bool)
+        or not isinstance(timeout_seconds, (int, float))
+        or not math.isfinite(float(timeout_seconds))
+        or not 0.0 < float(timeout_seconds) <= MAX_PROPOSAL_TIMEOUT_SECONDS
+    ):
+        return ProposalBoundaryResult("DENY", "invalid_timeout")
+    started_monotonic = time.monotonic()
+    deadline_monotonic = started_monotonic + float(timeout_seconds)
+    if not math.isfinite(deadline_monotonic):
+        return ProposalBoundaryResult("DENY", "invalid_timeout")
+    if deadline_monotonic <= time.monotonic():
+        return ProposalBoundaryResult("DENY", "deadline_expired")
+
+    if not isinstance(request, Mapping):
+        return ProposalBoundaryResult("DENY", "invalid_request")
     try:
-        raw = client.propose(request)
+        request_payload = dict(request)
+        if not _valid_json_value(request_payload):
+            return ProposalBoundaryResult("DENY", "invalid_request")
+        request_json = _canonical_json(request_payload)
+        if len(request_json.encode("utf-8")) > MAX_REQUEST_BYTES:
+            return ProposalBoundaryResult("DENY", "request_too_large")
+        request_sha256 = hashlib.sha256(request_json.encode("utf-8")).hexdigest()
+        # Give the client a private JSON snapshot, not the caller's mutable mapping.
+        request_snapshot = json.loads(request_json)
+    except Exception:
+        return ProposalBoundaryResult("DENY", "invalid_request")
+
+    if time.monotonic() >= deadline_monotonic:
+        return ProposalBoundaryResult("DENY", "deadline_expired")
+    try:
+        try:
+            raw = client.propose(
+                request_snapshot,
+                deadline_monotonic=deadline_monotonic,
+            )
+        except TimeoutError:
+            return ProposalBoundaryResult("DENY", "proposal_deadline_exceeded")
+        if time.monotonic() >= deadline_monotonic:
+            return ProposalBoundaryResult("DENY", "proposal_deadline_exceeded")
         if not isinstance(raw, Mapping) or set(raw) != {
             "action", "parameters", "model_id", "confidence", "evidence_refs"
         }:
@@ -106,20 +189,36 @@ def request_nemoclaw_proposal(
         evidence_refs = tuple(sorted(set(refs)))
         if len(evidence_refs) != len(refs):
             return ProposalBoundaryResult("DENY", "duplicate_evidence_reference")
-        if not all(evidence_verifier(ref) is True for ref in evidence_refs):
-            return ProposalBoundaryResult("DENY", "evidence_not_verified")
 
-        # Ensure parameters are canonicalizable JSON, with no NaN or custom
-        # Python objects that could change meaning across the authorization hop.
-        json.dumps(parameters, sort_keys=True, separators=(",", ":"), allow_nan=False)
+        # Canonical JSON prevents values changing meaning across the authority hop.
         action = action.strip()
-        parameters_json = json.dumps(
-            parameters, sort_keys=True, separators=(",", ":"),
-            ensure_ascii=False, allow_nan=False,
-        )
+        parameters_json = _canonical_json(parameters)
         if len(parameters_json.encode("utf-8")) > MAX_PARAMETER_BYTES:
             return ProposalBoundaryResult("DENY", "parameters_too_large")
-        action_digest = _digest(action, json.loads(parameters_json), evidence_refs)
+        canonical_parameters = json.loads(parameters_json)
+        action_digest = _digest(
+            request_sha256, action, canonical_parameters, evidence_refs
+        )
+        evidence_scope = EvidenceScope(
+            request_sha256=request_sha256,
+            action=action,
+            parameters_json=parameters_json,
+            evidence_refs=evidence_refs,
+            action_digest=action_digest,
+            deadline_monotonic=deadline_monotonic,
+        )
+        for ref in evidence_refs:
+            if time.monotonic() >= deadline_monotonic:
+                return ProposalBoundaryResult("DENY", "evidence_deadline_exceeded")
+            try:
+                verified = evidence_verifier(ref, evidence_scope)
+            except TimeoutError:
+                return ProposalBoundaryResult("DENY", "evidence_deadline_exceeded")
+            if time.monotonic() >= deadline_monotonic:
+                return ProposalBoundaryResult("DENY", "evidence_deadline_exceeded")
+            if verified is not True:
+                return ProposalBoundaryResult("DENY", "evidence_not_verified")
+
         candidate = ActionProposal(
             action=action,
             action_digest=action_digest,
@@ -128,10 +227,9 @@ def request_nemoclaw_proposal(
         )
         return ProposalBoundaryResult(
             "PROPOSED", "evidence_verified_sentinel_required", candidate,
-            evidence_refs, parameters_json,
+            evidence_refs, parameters_json, request_sha256,
         )
     except Exception:
         # Do not return exception text: transports can include secrets or
         # attacker-controlled response fragments in their errors.
         return ProposalBoundaryResult("DENY", "proposal_or_evidence_validation_failed")
-
