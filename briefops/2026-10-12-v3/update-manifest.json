@@ -1,0 +1,26 @@
+{
+"schema":"u1.briefops.v3.delta/1","date":"2026-10-12",
+"baseline":"U1 Sentinel v3; U1Ai main 4950a5319d85bfb5dd041eb631f980eeeb30bb89",
+"briefing_item_count":5,"authority_invariant":"Capability may change. Authority does not.",
+"sources":[
+{"id":"anthropic-actions","date":"2026-10-09","url":"https://www.anthropic.com/research/investigating-unintended-model-actions"},
+{"id":"openai-ui","date":"2026-10-07","url":"https://openai.com/index/gpt-6-for-everyone/"},
+{"id":"decart-talks","date":"2026-10-12","url":"https://www.wsj.com/business/deals/amazon-in-talks-to-buy-ai-startup-decart-for-around-7-billion-9433abad","confirmed":false},
+{"id":"ionq-link","date":"2026-10-09","url":"https://www.ionq.com/news/ionq-demonstrates-world-first-quantum-memory-enhanced-interconnect-for-distributed-quantum-applications","verified_advantage":false},
+{"id":"hcl-anthropic","date":"2026-10-12","url":"https://www.reuters.com/world/india/indias-hcltech-signs-pact-with-anthropic-set-up-business-unit-2026-10-12/"}
+],
+"components":{
+"OmniSign":{"disposition":"UPDATE","change":"Minimal normalized intent only; no raw-sensor retention; test keyboard, screen reader, focus, contrast, reduced motion and text fallback; consent for sensitive transitions."},
+"SIGNAL":{"disposition":"UPDATE","change":"Cross-domain intent is proposal-only; downstream controller authorizes; simulation evidence before any live physical integration."},
+"PRIMER":{"disposition":"NO_CHANGE","reason":"No evidence supports wider learner profiling, retention, diagnosis, or action authority."},
+"Sentinel_v3":{"disposition":"UPDATE","change":"Ed25519/SHA3 artifact provenance; pre-runtime component admission; consent gate; authority-service scoped single-use credentials; simulation gate; Ed25519/SHA3 receipt chain."},
+"AuthorityBench_v3":{"disposition":"UPDATE","tests":["tampered artifact","late admission","self-authority","consent","credential replay/scope","missing simulation","raw sensor","unverified advantage","receipt tampering"]},
+"AnnealMesh":{"disposition":"UPDATE","change":"Require maturity, availability horizon, evidence, benchmark, comparator, independent verification and verified_advantage; IonQ remains research evidence; Decart talks do not promote a backend."},
+"BriefOps":{"disposition":"UPDATE","change":"Five dated items, source links, dispositions, test output and SHA3 file hashes; distinguish reports from confirmed events."}
+},
+"security_invariants":["signed model provenance","component admission before runtime","cross-domain gate and explicit consent","scoped single-use credentials","simulation before live physical effect","modality normalization without raw-sensor retention","AnnealMesh maturity and verified-advantage descriptors","Ed25519/SHA3 effect receipts","models/inspectors/evaluators/providers/components cannot grant authority"],
+"no_change":["PRIMER learner-data scope","production model/provider promotion","Decart backend integration","quantum production execution/advantage claim","destructive, physical, financial, health-write, and unauthenticated alert effects"],
+"safety":{"external_effects":0,"destructive":0,"physical_actuation":0,"financial":0,"health_writes":0,"official_alerts":0,"production_runtime_wiring_changed":false,"self_authority_allowed":false},
+"verification":{"manifest":"PASS","command":"pytest -q","passed":16,"failed":0,"scope":"synthetic policy tests; no production runtime wiring or external effects"},
+"github":{"repository":"Unmute1-Ai/U1Ai","write_access_confirmed":true,"branch":"briefops/2026-10-12-v3"}
+}
