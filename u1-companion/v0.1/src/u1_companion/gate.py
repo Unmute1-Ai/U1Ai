@@ -124,9 +124,21 @@ def _run_checks(
     """
     checks: list[CheckResult] = []
 
-    def deny(name: str, token: str) -> tuple[bool, str | None, list[CheckResult], Tier | None, str | None]:
+    def deny(
+        name: str, token: str
+    ) -> tuple[bool, str | None, list[CheckResult], Tier | None, str | None]:
         checks.append(CheckResult(name=name, allowed=False, reason=token))
-        return False, token, checks, None, None
+        # Denial receipts must still name the class that was denied —
+        # evidence that hides the subject of its own denial is not evidence.
+        # The shape check runs before the class is readable (the input may
+        # not be an envelope at all), so it records None rather than guessing.
+        known_class = (
+            envelope.content_class.value
+            if isinstance(envelope, RouteEnvelope)
+            and isinstance(envelope.content_class, ContentClass)
+            else None
+        )
+        return False, token, checks, None, known_class
 
     # 1. Shape: the gate accepts constructed envelopes only; construction
     # already validates fields and computes the canonical digest.

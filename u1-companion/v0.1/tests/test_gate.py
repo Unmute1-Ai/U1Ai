@@ -203,6 +203,19 @@ class TestReceiptsWritten:
         assert [record["body"]["decision"] for record in lines] == [DECISION_DENY, "ALLOW"]
         assert all(record["body"]["unauthorized_effect"] is False for record in lines)
 
+    def test_deny_receipt_names_the_content_class(self, policy, tmp_path):
+        # A denial receipt that omits the class it denied is not usable
+        # evidence — "why was this denied" must be answerable from the line.
+        path = str(tmp_path / "receipts.jsonl")
+        writer = ReceiptWriter(path)
+        decision = evaluate(consented_env(), policy, receipt_writer=writer)
+        assert decision.allowed is False
+        ok, _ = verify_chain(path)
+        assert ok is True
+        with open(path, encoding="utf-8") as handle:
+            record = json.loads(handle.readline())
+        assert record["body"]["content_class"] == "adult_themed"
+
 
 def test_gate_decision_is_frozen(policy):
     env = envelope()
