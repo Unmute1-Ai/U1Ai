@@ -1,0 +1,41 @@
+{
+  "artifact": "U1 Adult Companion provider adapter layer",
+  "component": "u1-companion/v0.1",
+  "version": "0.1.0",
+  "tested_head_sha": "0f5d4405e72a10f1fa81a952b34638db82f4db2f",
+  "tested_head_sha_note": "the commit whose source tree produced the recorded test run; this manifest's own update lands in a follow-up commit and changes no tested source — CI green on the pushed head verifies the same suite on the final tree",
+  "test_command": "python -m pytest -q",
+  "test_exit_code": 0,
+  "test_summary": "100 passed in 0.15s",
+  "demo_command": "python scripts/demo.py evidence",
+  "demo_exit_code": 0,
+  "receipt_chain_verified": true,
+  "receipt_chain_verification": "recomputed independently from genesis (64-zero hex) against evidence/receipts.jsonl: 8 receipts, every prev_hash and receipt_hash matches",
+  "external_effects_enabled": false,
+  "live_providers": [],
+  "live_provider_integration_claimed": false,
+  "authority_lift_target": 0,
+  "unauthorized_effects_observed": 0,
+  "ci_workflow": ".github/workflows/u1-companion.yml (pytest on 3.10 and 3.12 plus the end-to-end demo)",
+  "baseline_reference": {
+    "name": "U1Si-Q / Glass Box receipt discipline",
+    "invariants": [
+      "no model, provider, inspector, evaluator, or component can self-grant authority",
+      "provider output is untrusted data and never an input to the authorization decision",
+      "a provider refusal can add a denial (advisory rerouting), never lift one",
+      "every decision is recorded as a hash-chained, envelope-bound receipt",
+      "external effects are consumed-before-effect (at-most-once); a crash requires fresh evaluation",
+      "essential text-first communication never depends on an external provider"
+    ]
+  },
+  "files": {
+    "test_output": "evidence/test_output.txt",
+    "sample_receipts": "evidence/receipts.jsonl",
+    "replay_store_snapshot": "evidence/replay.json"
+  },
+  "notes": [
+    "Every provider adapter in v0.1 is a stub or deterministic mock; no network I/O exists in the test or demo path.",
+    "The pending entry in evidence/replay.json is intentional evidence: the refused cloud attempt was consumed but never confirmed, so a re-run would require a fresh evaluation — at-most-once is exercised, not assumed.",
+    "Receipts are single-process (single-writer boundary); production needs process isolation."
+  ]
+}

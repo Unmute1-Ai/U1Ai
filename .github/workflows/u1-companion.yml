@@ -1,0 +1,45 @@
+name: u1-companion
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'u1-companion/**'
+      - '.github/workflows/u1-companion.yml'
+  pull_request:
+    paths:
+      - 'u1-companion/**'
+      - '.github/workflows/u1-companion.yml'
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install the component package and test runner
+        run: |
+          python -m pip install --no-cache-dir -e u1-companion/v0.1
+          python -m pip install --no-cache-dir 'pytest>=8,<9'
+      - name: Run the component test suite
+        run: |
+          cd u1-companion/v0.1
+          python -m pytest -q
+      - name: Run the end-to-end demo
+        run: |
+          cd u1-companion/v0.1
+          # Scratch dir: the demo refuses to append into the committed
+          # evidence chain, and CI must not overwrite evidence.
+          python scripts/demo.py "$RUNNER_TEMP/demo"

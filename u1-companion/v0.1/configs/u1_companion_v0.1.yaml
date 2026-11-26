@@ -1,0 +1,49 @@
+# U1 Companion v0.1 — declarative invariant document.
+#
+# This file documents the invariants the v0.1 code embeds. It is NOT loaded
+# at runtime: the repo precedent (aegis-q) is that config YAML restates what
+# the code enforces, and no package here depends on PyYAML. If the table
+# below and the code ever disagree, the code is authoritative and this file
+# is stale — fix one of them in the same change.
+
+component: u1-companion
+version: "0.1.0"
+policy_version: "u1-companion-routing/v0.1"
+
+invariants:
+  - "Providers are integrations, never authorities. Provider output can add
+     a denial (advisory rerouting) but never lift one."
+  - "Model capability can change. Principal authority does not."
+  - "The routing policy is deterministic, versioned, hashable, and
+     default-deny: a content class absent from the table is denied."
+  - "Tier ladder: TIER_0_LOCAL < TIER_1_U1CONTROLLED < TIER_2_EXTERNAL.
+     Effective tier = max(policy floor, declared tier); under-declaring buys
+     nothing."
+  - "Explicit content never leaves U1: egress is denied regardless of any
+     provider's willingness (egress_blocked_local_only)."
+  - "Envelope digests are canonical-JSON SHA-256 (sort_keys, compact
+     separators, ensure_ascii=False) and bind every decision to exact
+     bytes."
+  - "Essential text-first communication has a no-cloud path that works with
+     zero external providers configured."
+
+content_class_routing:
+  general:
+    external_allowed: true
+    floor_tier: TIER_2_EXTERNAL
+  adult_themed:
+    external_allowed: true   # with valid, envelope-bound consent (gate, D2)
+    floor_tier: TIER_2_EXTERNAL
+  explicit:
+    external_allowed: false  # local/U1-controlled only, always
+    floor_tier: TIER_0_LOCAL
+
+provider_budgets:
+  mock_cloud: { max_cost_units: 100 }   # stub/mock only in v0.1 — no live providers
+session_budget_units: 1000
+
+not_claimed:
+  - live vendor integrations (stub/mock only)
+  - real-time voice, creative generation, companion UI
+  - automated content classification (caller-declared in v0.1)
+  - multi-process receipt safety (single-writer boundary)
